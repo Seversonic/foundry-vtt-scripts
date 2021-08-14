@@ -4,8 +4,6 @@ const rageResourceName = "Rage"; // change this to what the Barbarian has as res
 const effectLabel = "Rage";
 
 const useWildMagic = true;
-let wildMagicResults = ''; //message and effects data
-
 
 let hasAvailableResource = false;
 
@@ -24,7 +22,8 @@ if (effect) {
         hasAvailableResource = true;
     if (!hasAvailableResource)
         return ui.notifications.warn("You are out of charges to Rage.");
-    const effectData = {
+    //effectData = {};
+	const effectData = {
         label: "Rage",
         icon: "systems/dnd5e/icons/skills/affliction_24.jpg",
         changes: [{
@@ -57,15 +56,17 @@ if (effect) {
             startTime: game.time.worldTime
         },
     };
+
+	console.log(effectData);
 	//wildmagic
 	if (useWildMagic){
 		let wildMagicRoll = await rollDice('1d8');
 		wildMagicResults = await castWildMagic(Number(wildMagicRoll));
 		//concat array for multiple elements. push doesnt work
 		effectData.changes = effectData.changes.concat(wildMagicResults.effects);
-
+		
 	}
-	console.log(wildMagicResults.message);
+	console.log(effectData);
     await actor.createEmbeddedDocuments("ActiveEffect", [effectData]);
     message = `<em>${actor.name} is RAAAAAAAGING</em>` + wildMagicResults.message;
     let newResources = duplicate(actor.data.data.resources);
@@ -87,15 +88,16 @@ ChatMessage.create({
 
 
 async function rollDice(dice){
-	let wildmagicRoll = new Roll(dice);
-	await wildmagicRoll.roll({async:true});
-	return Number(wildmagicRoll.result);
+	let diceRoll = new Roll(dice);
+	await diceRoll.roll({async:true});
+	return Number(diceRoll.result);
 }
 
 
 async function castWildMagic(rollResult) {
-
-    switch (1) {
+	effects = [{}]; //set empty
+	message = '<p>[[' +rollResult +']]{Wild Magic}</p>'
+    switch (rollResult) {
 		case 1: //Necro blast
 			let rollTempHP = await rollDice('1d12');
 			let rollNecroticDmg = await rollDice('1d12');
@@ -106,63 +108,52 @@ async function castWildMagic(rollResult) {
                 "priority": 20
             }];
 			
- 			message = '<p>Shadowy tendrils lash around out. Each creature of your choice that you can see within 30 feet of you must succeed on a Constitution saving throw or take 1d12 necrotic damage. You also gain 1d12 temporary hit points.</p>';
+ 			message = message + '<p>Shadowy tendrils lash around out. Each creature of your choice that you can see within 30 feet of you must succeed on a Constitution saving throw or take 1d12 necrotic damage. You also gain 1d12 temporary hit points.</p>';
 			message = message + '<div style="text-align:center ; font-size:large">[[' +rollNecroticDmg +']]{Necrotic}</div> <p></p> <div style="text-align:center ; font-size:large">[[' + rollTempHP + ']]{Temporary HP}</div> <p></p> DC=';
 
 			break;
 		case 2: //Teleport
-/* 			magicMsg = `${macroActor.name}` + ' vanishes and reappears on the battlefield!  Until your rage ends, you can use this effect again on each of your turns as a bonus action.';
-			magicMsgExtended = ''
-			setAura(distance=2,colour="#00FFFF"); //aqua
-			break; */
+ 			message = '<p> You vanishes and reappear on the battlefield!  Until your rage ends, you can use this effect again on each of your turns as a bonus action.</p>';
+			//setAura(distance=2,colour="#00FFFF"); //aqua
+			break; 
 		case 3: //Exploding Navi
-/* 			magicMsg = 'An intangible spirit, which looks like a flumph or a pixie (your choice), appears within 5 feet of one creature of your choice that you can see within 30 feet of you. At the end of the current turn, the spirit explodes, and each creature within 5 feet of it must succeed on a Dexterity saving throw or take 1d6 force damage. Until your rage ends, you can use this effect again, summoning another spirit, on each of your turns as a bonus action.';
-			magicMsgExtended = '<div style="text-align:center ; font-size:large">[[1d6]]{Force}</div> <p></p> DC=' + spellDC
-			break; */
+			let rollForceDmg = await rollDice('1d6');
+ 			message = message + '<p>An intangible spirit, which looks like a flumph or a pixie (your choice), appears within 5 feet of one creature of your choice that you can see within 30 feet of you. At the end of the current turn, the spirit explodes, and each creature within 5 feet of it must succeed on a Dexterity saving throw or take 1d6 force damage. Until your rage ends, you can use this effect again, summoning another spirit, on each of your turns as a bonus action.</p>';
+			message = message + '<div style="text-align:center ; font-size:large">[[' + rollForceDmg + ']]{Force}</div> <p> DC= </p>'
+			break; 
 		case 4: //Lighter weapons
-/* 			magicMsg = 'Magic infuses one weapon of your choice that you are holding. Until your rage ends, the weapons damage type changes to force, and it gains the light and thrown properties, with a normal range of 20 feet and a long range of 60 feet. If the weapon leaves your hand, the weapon reappears in your hand at the end of the current turn.';
-			magicMsgExtended = ''
-			break; */
+ 			message = '<p>Magic infuses one weapon of your choice that you are holding. Until your rage ends, the weapons damage type changes to force, and it gains the light and thrown properties, with a normal range of 20 feet and a long range of 60 feet. If the weapon leaves your hand, the weapon reappears in your hand at the end of the current turn.</p>';
+			break; 
 		case 5: //Retribution Aura
-/* 			magicMsg = 'Whenever a creature hits you with an attack roll before your rage ends, that creature takes 1d6 force damage, as magic lashes out in retribution.';
-			magicMsgExtended = ''
+ 			message = message + '<p>Whenever a creature hits you with an attack roll before your rage ends, that creature takes 1d6 force damage, as magic lashes out in retribution.</p>';
 			setAura(distance=2,colour="#DC143C"); //crimson
-			break; */
+			break; 
 		case 6: //Protection Aura
-/* 			magicMsg = 'Until your rage ends, you are surrounded by multi colored, protective lights. You gain a +1 bonus to AC, and while within 10 feet of you, your allies gain the same bonus.';
-			magicMsgExtended = ''
-			setAura(distance=10,colour="#0000FF"); //blue
-			//todo modify AC
-			break; */
+			effects =  [{
+                "key": "data.attributes.ac.bonus",
+                "value": 1,
+                "mode": 2,
+                "priority": 20
+            }];
+ 			message = message + '<p>Until your rage ends, you are surrounded by multi colored, protective lights. You gain a +1 bonus to AC, and while within 10 feet of you, your allies gain the same bonus.</p>';
+			//setAura(distance=10,colour="#0000FF"); //blue
+			break; 
 		case 7: //Vine Aura
-/* 			magicMsg = 'Flowers and vines temporarily grow around you. Until your rage ends, the ground within 15 feet of you is difficult terrain for your enemies.';
-			magicMsgExtended = ''
-			setAura(distance=15,colour="#008000"); //green
-			break; */
+ 			message = message + '<p>Flowers and vines temporarily grow around you. Until your rage ends, the ground within 15 feet of you is difficult terrain for your enemies.</p>';
+			//setAura(distance=15,colour="#008000"); //green
+			break; 
 		case 8: //Ironman
-/* 			magicMsg = 'A bolt of light shoots from your chest. Another creature of your choice that you can see within 30 feet of you must succeed on a Constitution saving throw or take 1d6 radiant damage and be blinded until the start of your next turn. Until your rage ends, you can use this effect again on each of your turns as a bonus action.';
-			magicMsgExtended = '<div style="text-align:center ; font-size:large">[[/1d6]]{Radiant}</div> <p></p> DC=' + spellDC
-			break; */
+			let rollRadiantDmg = await rollDice('1d6');
+ 			message = message + '<p>A bolt of light shoots from your chest. Another creature of your choice that you can see within 30 feet of you must succeed on a Constitution saving throw or take 1d6 radiant damage and be blinded until the start of your next turn. Until your rage ends, you can use this effect again on each of your turns as a bonus action.</p>';
+			message = message + '<div style="text-align:center ; font-size:large">[['+ rollRadiantDmg +']]{Radiant}</div> <p>DC=</p>'
+			break; 
 		default:
-/* 			magicMsg = 'Wild magic roll not found';
-			magicMsgExtended = ''
-			break; */
+ 			message = message + 'Wild magic roll not found';
+			break; 
 		}
-		//rollMsg = '<p><div style="text-align:center">[[' + d8roll + ']]{Wild Magic} </div></p>';
-		//magicMsg=rollMsg + magicMsg;
 
-		
     return {
 			"effects" : effects, 
 			"message" : message
 		};
 };
-
-function setAura(distance='', colour="#FFFFFF", opacity=0.25){
-	//apply aura settings
-	token.setFlag('token-auras', 'aura1.distance', distance );
-	token.setFlag('token-auras', 'aura1.colour', colour);
-	token.setFlag('token-auras', 'aura1.opacity', opacity);
-}
-
-
