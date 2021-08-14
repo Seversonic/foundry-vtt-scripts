@@ -4,6 +4,8 @@ const rageResourceName = "Rage"; // change this to what the Barbarian has as res
 const effectLabel = "Rage";
 
 const useWildMagic = true;
+let wildMagicResults = ''; //message and effects data
+
 
 let hasAvailableResource = false;
 
@@ -58,15 +60,14 @@ if (effect) {
 	//wildmagic
 	if (useWildMagic){
 		let wildMagicRoll = await rollDice('1d8');
-		let wildMagicResults = await castWildMagic(Number(wildMagicRoll));
+		wildMagicResults = await castWildMagic(Number(wildMagicRoll));
 		//concat array for multiple elements. push doesnt work
-		effectData.changes=	effectData.changes.concat(wildMagicResults.effects);
+		effectData.changes = effectData.changes.concat(wildMagicResults.effects);
 
 	}
-	
-
+	console.log(wildMagicResults.message);
     await actor.createEmbeddedDocuments("ActiveEffect", [effectData]);
-    message = `<em>${actor.name} is RAAAAAAAGING</em>`;
+    message = `<em>${actor.name} is RAAAAAAAGING</em>` + wildMagicResults.message;
     let newResources = duplicate(actor.data.data.resources);
     newResources[resourceKey].value--;
     await actor.update({
@@ -88,7 +89,7 @@ ChatMessage.create({
 async function rollDice(dice){
 	let wildmagicRoll = new Roll(dice);
 	await wildmagicRoll.roll({async:true});
-	return wildmagicRoll.result;
+	return Number(wildmagicRoll.result);
 }
 
 
@@ -97,7 +98,7 @@ async function castWildMagic(rollResult) {
     switch (1) {
 		case 1: //Necro blast
 			let rollTempHP = await rollDice('1d12');
-			let rollRollNecrotic = await rollDice('1d12');
+			let rollNecroticDmg = await rollDice('1d12');
 			effects =  [{
                 "key": "data.attributes.hp.temp",
                 "value": rollTempHP,
@@ -105,10 +106,9 @@ async function castWildMagic(rollResult) {
                 "priority": 20
             }];
 			
-/* 			magicMsg = 'Shadowy tendrils lash around out. Each creature of your choice that you can see within 30 feet of you must succeed on a Constitution saving throw or take 1d12 necrotic damage. You also gain 1d12 temporary hit points.';
-			magicMsgExtended = '<div style="text-align:center ; font-size:large">[[1d12]]{Necrotic}</div> <p></p> <div style="text-align:center ; font-size:large">[[1d12]]{Temporary HP}</div> <p></p> DC=' + spellDC
-			//todo add temp HP
-			//actor.data.data.attributes.hp.temp = 5 */
+ 			message = '<p>Shadowy tendrils lash around out. Each creature of your choice that you can see within 30 feet of you must succeed on a Constitution saving throw or take 1d12 necrotic damage. You also gain 1d12 temporary hit points.</p>';
+			message = message + '<div style="text-align:center ; font-size:large">[[' +rollNecroticDmg +']]{Necrotic}</div> <p></p> <div style="text-align:center ; font-size:large">[[' + rollTempHP + ']]{Temporary HP}</div> <p></p> DC=';
+
 			break;
 		case 2: //Teleport
 /* 			magicMsg = `${macroActor.name}` + ' vanishes and reappears on the battlefield!  Until your rage ends, you can use this effect again on each of your turns as a bonus action.';
@@ -164,10 +164,5 @@ function setAura(distance='', colour="#FFFFFF", opacity=0.25){
 	token.setFlag('token-auras', 'aura1.colour', colour);
 	token.setFlag('token-auras', 'aura1.opacity', opacity);
 }
-
-/* const necroticRoll = new Roll("1d12").evaluate({async: false});
-const tempHpRoll = new Roll("1d12").evaluate({async: false});
-message += `<br>Each creature within 30ft takes ${necroticRoll.total} Necrotic damage. <br>You gain ${tempHpRoll.total} temporary HP.`;
-await actor.update({"data.attributes.hp.temp": tempHpRoll.total}); */
 
 
