@@ -1,3 +1,5 @@
+//credit to https://gitlab.com/Freeze020/foundry-vtt-scripts
+
 if (!token)
     return;
 const rageResourceName = "Rage"; // change this to what the Barbarian has as resource name on their sheet.
