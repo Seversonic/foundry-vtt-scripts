@@ -5,7 +5,8 @@ if (!token)
 const rageResourceName = "Rage"; // change this to what the Barbarian has as resource name on their sheet.
 const effectLabel = "Rage";
 
-const useWildMagic = true;
+const useWildMagic = true; //set to true to cast wild magic when raging
+const spellDC =  8 + actor.data.data.attributes.prof + actor.data.data.abilities.con.mod;
 
 let hasAvailableResource = false;
 
@@ -59,7 +60,6 @@ if (effect) {
         },
     };
 
-	console.log(effectData);
 	//wildmagic
 	if (useWildMagic){
 		let wildMagicRoll = await rollDice('1d8');
@@ -68,7 +68,6 @@ if (effect) {
 		effectData.changes = effectData.changes.concat(wildMagicResults.effects);
 		
 	}
-	console.log(effectData);
     await actor.createEmbeddedDocuments("ActiveEffect", [effectData]);
     message = `<em>${actor.name} is RAAAAAAAGING</em>` + wildMagicResults.message;
     let newResources = duplicate(actor.data.data.resources);
@@ -121,14 +120,14 @@ async function castWildMagic(rollResult) {
 		case 3: //Exploding Navi
 			let rollForceDmg = await rollDice('1d6');
  			message = message + '<p>An intangible spirit, which looks like a flumph or a pixie (your choice), appears within 5 feet of one creature of your choice that you can see within 30 feet of you. At the end of the current turn, the spirit explodes, and each creature within 5 feet of it must succeed on a Dexterity saving throw or take 1d6 force damage. Until your rage ends, you can use this effect again, summoning another spirit, on each of your turns as a bonus action.</p>';
-			message = message + '<div style="text-align:center ; font-size:large">[[' + rollForceDmg + ']]{Force}</div> <p> DC= </p>'
+			message = message + '<div style="text-align:center ; font-size:large">[[' + rollForceDmg + ']]{Force}</div> <p> DC=' + spellDC + '</p>'
 			break; 
 		case 4: //Lighter weapons
  			message = '<p>Magic infuses one weapon of your choice that you are holding. Until your rage ends, the weapons damage type changes to force, and it gains the light and thrown properties, with a normal range of 20 feet and a long range of 60 feet. If the weapon leaves your hand, the weapon reappears in your hand at the end of the current turn.</p>';
 			break; 
 		case 5: //Retribution Aura
  			message = message + '<p>Whenever a creature hits you with an attack roll before your rage ends, that creature takes 1d6 force damage, as magic lashes out in retribution.</p>';
-			setAura(distance=2,colour="#DC143C"); //crimson
+			//setAura(distance=2,colour="#DC143C"); //crimson
 			break; 
 		case 6: //Protection Aura
 			effects =  [{
@@ -147,7 +146,7 @@ async function castWildMagic(rollResult) {
 		case 8: //Ironman
 			let rollRadiantDmg = await rollDice('1d6');
  			message = message + '<p>A bolt of light shoots from your chest. Another creature of your choice that you can see within 30 feet of you must succeed on a Constitution saving throw or take 1d6 radiant damage and be blinded until the start of your next turn. Until your rage ends, you can use this effect again on each of your turns as a bonus action.</p>';
-			message = message + '<div style="text-align:center ; font-size:large">[['+ rollRadiantDmg +']]{Radiant}</div> <p>DC=</p>'
+			message = message + '<div style="text-align:center ; font-size:large">[['+ rollRadiantDmg +']]{Radiant}</div> <p>DC=' + spellDC + '</p>'
 			break; 
 		default:
  			message = message + 'Wild magic roll not found';
