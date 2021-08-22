@@ -366,24 +366,32 @@ async function rollWildMagic(roll){
 			wildMagicResults = await getWildMagic(Number(roll));
 			await createEffects(wildMagicResults.effectsData);
 			chatMessage(wildMagicResults.message);
-			if (useTokenAuras){
-				setAura(wildMagicResults.aura.distance, wildMagicResults.aura.colour, wildMagicResults.aura.opacity);
-			}			
+			setAura(wildMagicResults.aura.distance, wildMagicResults.aura.colour, wildMagicResults.aura.opacity);		
 	}else{
 			wildMagicResults = await getWildMagic(Number(roll));
 			await createEffects(wildMagicResults.effectsData);
 			chatMessage(wildMagicResults.message);
-			if (useTokenAuras){
-				setAura(wildMagicResults.aura.distance, wildMagicResults.aura.colour, wildMagicResults.aura.opacity);
-			}
+			setAura(wildMagicResults.aura.distance, wildMagicResults.aura.colour, wildMagicResults.aura.opacity);
 	};
 	}
 	
 function setAura(distance, colour, opacity) {
     //apply aura settings
-    token.setFlag('token-auras', 'aura1.distance', distance);
-    token.setFlag('token-auras', 'aura1.colour', colour);
-    token.setFlag('token-auras', 'aura1.opacity', opacity);
+	if (useTokenAuras) {
+        if (!moduleTokenAuras) {
+            ui.notifications.warn("Token-Auras module not found");
+			return;
+        }
+        if (!moduleTokenAuras.active) {
+            ui.notifications.warn("Token-Auras module found, but not active");
+			return;
+        } 
+        
+		token.setFlag('token-auras', 'aura1.distance', distance);
+		token.setFlag('token-auras', 'aura1.colour', colour);
+		token.setFlag('token-auras', 'aura1.opacity', opacity);
+        
+}
 }
 
  async function controlledSurge(){
@@ -431,5 +439,4 @@ async function dialogPopUp(title, content, buttons, id) {
 	});
     return d;
 }
-
 
