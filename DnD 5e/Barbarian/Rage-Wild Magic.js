@@ -157,6 +157,8 @@ async function Rage() {
 		if (effectWildMagicRage){
 			let wildMagicRageId = effectWildMagicRage.id;
 			await actor.deleteEmbeddedDocuments("ActiveEffect", [wildMagicRageId]);
+			actor.update({"data.attributes.hp.temp" : "0"});
+			
 		}
 		
 		//remove token-aura if present
@@ -271,12 +273,13 @@ async function getWildMagic(rollResult) {
             let rollTempHP = await rollDice('1d12');
             let rollNecroticDmg = await rollDice('1d12');
             wildMagicEffects = [{
-                    "key": "data.attributes.hp.temp",
+                    "key": "data.attributes.hp.tempmax",
                     "value": rollTempHP,
                     "mode": 2,
                     "priority": 20
                 }
             ];
+	    actor.update({"data.attributes.hp.temp" : rollTempHP});
             message = message + '<p>Shadowy tendrils lash around out. Each creature of your choice that you can see within 30 feet of you must succeed on a Constitution saving throw or take 1d12 necrotic damage. You also gain 1d12 temporary hit points.</p>';
             message = message + '<div style="text-align:center ; font-size:large">[[' + rollNecroticDmg + ']]{Necrotic}</div> <p></p> <div style="text-align:center ; font-size:large">[[' + rollTempHP + ']]{Temporary HP}</div> <p></p> DC=' + spellDC;
             break;
