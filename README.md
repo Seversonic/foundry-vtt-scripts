@@ -17,6 +17,9 @@ https://gitlab.com/Freeze020/foundry-vtt-scripts
 ## Sub Class - Totem Warrior ##
 ## Sub Class - Wild Magic ##
 ### Primal Path 3rd Level: Wild Surge ###
+
+![image](https://user-images.githubusercontent.com/43625790/130538615-72a9830f-02fa-4655-abff-b31fd7aee3cc.png)
+
 ### Primal Path 10th Level: Unstable Backlash ###
 
 ![image](https://user-images.githubusercontent.com/43625790/130538030-4c0e6d5e-6228-4572-96f3-4cb203d7664f.png)
