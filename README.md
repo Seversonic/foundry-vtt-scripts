@@ -45,7 +45,7 @@ Rolls the wild surge twice and gives the corresponding option when entering rage
 
 <table >
   <tr>
-    <td><img src="https://user-images.githubusercontent.com/43625790/130538128-8709a30f-ae91-4f13-be7a-da17d0b5a45f.png)"/></td>
+    <td><img src="https://user-images.githubusercontent.com/43625790/130538128-8709a30f-ae91-4f13-be7a-da17d0b5a45f.png"/></td>
   </tr>
   <tr>
     <td>![image](https://user-images.githubusercontent.com/43625790/130538097-1e528cd6-d568-4953-88af-cd6c8f9ac4f3.png)</td>
